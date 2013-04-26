@@ -129,18 +129,17 @@ abstract class Jm_Configuration
      *
      *  @return string
      */
-    public function __toString(){
-        return print_r($this, true);
+    public function __toString() {
+        return print_r($this, TRUE);
     }
 
 
     /**
+     * Returns a config value based on its key
+     *  
+     * @param string $key The identifier of the config value
      *
-     *  @param string $key
-     *  @param boolean $forceLocal If set to TRUE the method will
-     *  not ask the global configuration if the value is not present in 
-     *  the objects data table itself and directly returns NULL.
-     *  @return mixed
+     * @return mixed
      */
     public function get($key) {
         if(!isset($this->values[$key])) {
@@ -169,52 +168,43 @@ abstract class Jm_Configuration
 
 
     /**
+     * Validates the configuration using a validator class
      *
+     * @return boolean True if the configuration is valid
      *
+     * @throws Jm_Configuration_Exception if the configuration is not valid 
      */
-    public function export($key = '', $forceLocal = FALSE){
-        self::$__global = $this;
-    }
-
-
-    /**
-     *
-     *
-     */
-    public static function __global(){
-        return self::$__global;
-    }
-
-
-    /**
-     *
-     */
-    public function validate(){
+    public function validate() {
         // first check if the validaton is 'enabled'
         if(!empty($this->validatorClass)) {
             $this->validator = new $this->validator($this);			
             try{
                 $this->validator->validate($this);
-            } catch ( VALIDATION_Exception $e) {
-               // pack the exception info into a 
+            } catch ( Exception $e) {
+                // pack the exception info into a 
                 // configuration exception and rethrow it
-                throw new Configuration_Exception(
+                throw new Jm_Configuration_Exception(
                     'Configuration not valid!'/* @todo extend this */
                 );		
             } 
         }	
-        return true;
+        return TRUE;
     }
 
 
     /**
      * Sets a validator class
      *
+     * @param string $className The name of a validation class
+     *
+     * @return Jm_Configuration
+     *
      * @throws InvalidArgumentException if $className is not a string
      */
-    protected function setValidator($className){
+    public function setValidator($className) {
         Jm_Util_Checktype::check('string', $className);
         $this->validatorClass = $className;
+        return $this;
     }
 
 
@@ -242,9 +232,13 @@ abstract class Jm_Configuration
      *  Merges the other configuration from
      *  right(default) or left 
      *
-     *  @param Jm_Configuration|array $configuration
-     *  @param boolean $mergeright
+     *  @param Jm_Configuration|array $configuration Another Jm_Configuration
+     *  object or an array
+     *  @param boolean                $mergeright    If passing FALSE the 
+     *  current values will not being overwritten. Defaults to TRUE
+     *
      *  @return Jm_Configuration
+     *
      *  @throws InvalidArgumentException 
      */
     public function merge (
@@ -273,20 +267,6 @@ abstract class Jm_Configuration
             );  
         }
         return $this;
-    }
-}
-
-
-
-/**
- *  Returns a global configuration value
- */
-function conf($key) {
-    $conf = Jm_Configuration::__global();
-    if(!is_null($conf)) {
-        return $conf->get($key);
-    } else {
-        return NULL;
     }
 }
 

@@ -6,7 +6,7 @@
   <includePath>lib/php</includePath>
 </php>
 <testsuites>
-   <testsuite name="jam">
+   <testsuite name="Jm_Configuration">
      <directory suffix="Test.php">tests</directory>
    </testsuite>
 </testsuites>

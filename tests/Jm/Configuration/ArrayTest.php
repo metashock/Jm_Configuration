@@ -87,44 +87,4 @@ class Jm_Configuration_ArrayTest extends PHPUnit_Framework_TestCase
         $conf = new Jm_Configuration_Array('');
     }
 
-
-    /**
-     *
-     */
-    public function test_jm_conf_arr() {
-
-        // if it runs with process isolation the autoloader
-        // won't been called as we only call the function
-        require_once 'Jm/Configuration/Array.php';
-
-        // we test with an empty array first
-        $conf = jm_conf_arr();
-        $this->assertEmpty($conf->getAll());
-
-        // now we test we a predefined array
-        $conf = jm_conf_arr(array(
-            'a' => 1,
-            'b' => 'test'
-        ));
-
-        $this->assertEquals($conf->get('a'), 1);
-        $this->assertEquals($conf->get('b'), 'test');
-
-        $this->assertEquals($conf->getAll(), array('a' => 1, 'b' => 'test'));
-    }
-
-
-    /**
-     * @expectedException PHPUnit_Framework_Error
-     */
-    public function test_jm_conf_arrException() {
-
-        // if it runs with process isolation the autoloader
-        // won't been called as we only call the function
-        require_once 'Jm/Configuration/Array.php';
-
-        $conf = jm_conf_arr('');
-    }
-
-
 }

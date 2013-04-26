@@ -215,7 +215,7 @@ class Jm_Configuration_Inifile extends Jm_Configuration
      *
      * @return Jm_Configuration_Inifile
      */
-    protected function setProcessSections($value){
+    protected function setProcessSections($value) {
         Jm_Util_Checktype::check('boolean', $value);
         $this->processSections = $value;
     }

@@ -46,7 +46,8 @@
  * @since     0.1.0
  */
 /**
- *
+ * Interface that should be implemented by all configurable objects
+ * 
  * @package Jm_Configuration
  */
 interface Jm_Configurable
@@ -55,7 +56,8 @@ interface Jm_Configurable
     /**
      *  Configures the implementing object
      *  
-     *  @param array|Jm_Configuration $configuration
+     *  @param array|Jm_Configuration $configuration A configuration object
+     *  or NULL
      *
      *  @return Jm_Configurable
      */
