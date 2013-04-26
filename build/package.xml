@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.9.4" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0     http://pear.php.net/dtd/tasks-1.0.xsd     http://pear.php.net/dtd/package-2.0     http://pear.php.net/dtd/package-2.0.xsd">
+ <name>Jm_Configuration</name>
+ <channel>www.metashock.de/pear</channel>
+ <summary>Framework for application or object configuration</summary>
+ <description>Jm_Configuration provides a transparent access to various types of configuration files or containers. Like arrays, .ini files. To be extended</description>
+ <lead>
+  <name>Thorsten Heymann</name>
+  <user>hek2mgl</user>
+  <email>hek2mgl at metashock.net</email>
+  <active>yes</active>
+ </lead>
+ <date>2013-03-04</date>
+ <time>05:09:51</time>
+ <version>
+  <release>$$RELEASE_VERSION$$</release>
+  <api>$$API_VERSION$$</api>
+ </version>
+ <stability>
+  <release>stable</release>
+  <api>stable</api>
+ </stability>
+ <license uri="http://www.opensource.org/licenses/BSD-3-Clause">BSD-3</license>
+ <notes>
+-
+ </notes>
+ <contents>
+  <dir name=".">
+  <dir name="Jm">
+    <file name="Configuration.php" role="php" />
+    <file name="Configurable.php" role="php" />
+    <dir name="Configuration">
+      <file name="Array.php" role="php" />
+      <file name="Inifile.php" role="php" />
+    </dir>
+  </dir>
+
+  <dir name="examples">
+    <dir name="Jm">
+      <dir name="Configuration">
+        <file name="example.array.php" role="doc" />
+        <file name="example.ini" role="doc" />
+        <file name="example.ini.php" role="doc" />
+      </dir>
+    </dir>
+  </dir>
+
+  <dir name="tests">
+    <dir name="Jm">
+      <dir name="Configuration">
+        <file name="ArrayTest.php" role="test" />
+        <file name="InifileTest.php" role="test" />
+      </dir>
+    </dir>
+  </dir>
+
+  <dir name="doc">
+    <dir name="Jm">
+      <dir name="Configuration">
+        <file name="README.md" role="doc" />
+      </dir>
+    </dir>
+  </dir>
+  </dir>
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.3.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0</min>
+   </pearinstaller>
+   <package>
+    <name>Jm_Autoloader</name>
+    <channel>www.metashock.de/pear</channel>
+    <min>0.2.2</min>
+   </package>
+   <package>
+    <name>Jm_Util</name>
+    <channel>www.metashock.de/pear</channel>
+    <min>0.1.2</min>
+   </package>
+  </required>
+ </dependencies>
+ <phprelease />
+</package>

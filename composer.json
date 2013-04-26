@@ -1,0 +1,20 @@
+{
+    "name"          : "metashock/jm_configuration",
+    "version"       : "0.3.0",
+    "license"       : "BSD-3",
+    "description"   : "Little configuration library that makes the storage location or method transparent for an application",
+    "minimum-stability" : "beta",
+
+    "repositories"  : {
+        "metashock" : {
+            "type"   : "pear",
+            "url"    : "http://www.metashock.de/pear",
+            "strict" : true
+        }
+    },
+
+    "require"       : {
+        "pear-www.metashock.de/pear/jm_autoloader" : "*"
+    }
+}
+
