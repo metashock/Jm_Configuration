@@ -31,10 +31,12 @@
     <file name="Configurable.php" role="php" />
     <dir name="Configuration">
       <file name="Array.php" role="php" />
+      <file name="Exception.php" role="php" />
+      <file name="InifileCorruptException.php" role="php" />
       <file name="Inifile.php" role="php" />
+      <file name="KeyNotFoundException.php" role="php" />
     </dir>
   </dir>
-
   <dir name="examples">
     <dir name="Jm">
       <dir name="Configuration">
@@ -44,7 +46,6 @@
       </dir>
     </dir>
   </dir>
-
   <dir name="tests">
     <dir name="Jm">
       <dir name="Configuration">

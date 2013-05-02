@@ -22,7 +22,7 @@ while [ -z "$version" ] ; do
 
     # check if the input is valid
     # @todo quote for regex
-    if [ -z "$input" ] || [ ! `git tag | grep -e "^$input$"` ] ; then
+    if [ -z "$input" ] || [ ! $(git tag | grep -e "^$input$") ] ; then
         echo "unknown tag $input. try again"
         continue
     fi
@@ -59,11 +59,11 @@ if [ ! -f "$mydir/pear/Jm/Configuration" ] ; then
 fi
 
 echo -n "Cleanup build directory ..."
-rm -f "$mydir"/pear/Jm/*
+rm -f "$mydir"/pear/*
 echo "done"
 
 echo -n "Copy files from checkout to build directory ... "
-cp -a "$TEMPORARY_CHECKOUT"/lib/php/Jm/* "$mydir"/pear/Jm
+cp -a "$TEMPORARY_CHECKOUT"/lib/php/* "$mydir"/pear/
 cp -a "$TEMPORARY_CHECKOUT"/tests "$mydir"/pear/
 cp -a "$TEMPORARY_CHECKOUT"/examples "$mydir"/pear/
 
