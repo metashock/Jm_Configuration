@@ -45,13 +45,11 @@
  * @link      http://www.metashock.de/
  * @since     0.1.0
  */
+/**
+ * Test custom methods of Jm_Configuration_Inifile
+ */
 class Jm_Configuration_InifileTest extends PHPUnit_Framework_TestCase
 {
-
-
-    public function setUp() {
-        require_once 'Jm/Autoloader.php';
-    }
 
 
     /**
@@ -81,17 +79,18 @@ EOF
     /**
      * Tests that load() will throw an Exception if $path does not exist
      *
-     * @expectedException Exception
+     * @expectedException Jm_Filesystem_FileNotFoundException
      */
     public function testLoadFileNotFoundException() {
         $conf = new Jm_Configuration_Inifile();
         $conf->load(sha1(uniqid())); // does not exist
     }
 
+
     /**
      * Tests that load() will throw an Exception if $path is not readable
      *
-     * @expectedException Exception
+     * @expectedException Jm_Filesystem_FileNotReadableException
      */
     public function testLoadFileNotReadableException() {
         $inifile = tempnam(sys_get_temp_dir(), 'phpunit');
@@ -101,6 +100,60 @@ EOF
 
         chmod($inifile, 0000);
         $conf = new Jm_Configuration_Inifile($inifile);
+    }
+
+
+    /**
+     * @expectedException Jm_Configuration_InifileCorruptException
+     */
+    public function testLoadInifileCorruptException() {
+        $inifile = tempnam(sys_get_temp_dir(), 'phpunit');
+        register_shutdown_function(function() use($inifile) {
+            unlink($inifile);
+        });
+        file_put_contents($inifile, '=test');
+        $conf = new Jm_Configuration_Inifile($inifile);
+    }
+
+
+    /**
+     */
+    public function testLoadDirectory() {
+        // potential race condition!
+        $aini = tempnam(sys_get_temp_dir(), 'a.phpunit');
+        $bini = tempnam(sys_get_temp_dir(), 'b.phpunit');
+        rename($aini, $aini . '.ini');
+        rename($bini, $bini . '.ini');
+        $aini = $aini . '.ini';
+        $bini = $bini . '.ini';
+        
+        register_shutdown_function(function() use($aini, $bini) {
+            unlink($aini);
+            unlink($bini);
+        });
+
+        file_put_contents($aini, <<<EOF
+foo=bar
+hello=world
+EOF
+        );
+
+        file_put_contents($bini, <<<EOF
+foo=
+test=1
+EOF
+        );
+
+        $conf = new Jm_Configuration_Inifile(sys_get_temp_dir());
+
+        $expected = array (
+            'foo' => '',
+            'hello' => 'world',
+            'test' => '1' 
+        );
+
+        $this->assertEquals($expected, $conf->getAll());
+
     }
 }
 

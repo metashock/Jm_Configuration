@@ -57,7 +57,7 @@
  * @link      http://www.metashock.de/
  * @since     0.1.0
  */	
-abstract class Jm_Configuration 
+abstract class Jm_Configuration
 {
 
     /**
@@ -87,28 +87,12 @@ abstract class Jm_Configuration
 
 
     /**
-     * Represents the global configuration
-     *
-     * @var Jm_Configuration
-     */
-    protected static $global;
-
-
-    /**
      * Flag which is set if the original configuration was 
      * updated during runtime.
      *
      * @var boolean
      */
     protected $updated = FALSE;
-
-
-    /**
-     * Sha1sum of the config to identify it faster
-     *
-     * @var string
-     */
-    protected $sha1sum;
 
 
 
@@ -135,15 +119,38 @@ abstract class Jm_Configuration
 
 
     /**
+     * Sets a config value. If $key does already exists then 
+     * the value will be overwritten otherwise added.
+     *
+     * @param string $key   The config key
+     * @param mixed  $value The value
+     *
+     * @return Jm_Configuration
+     *
+     * @throws InvalidArgumentException if $key is not a string
+     */
+    public function set($key, $value) {
+        Jm_Util_Checktype::check('string', $key);
+        $this->values[$key] = $value;
+        $this->updated = TRUE;
+        return $this;
+    }
+
+
+    /**
      * Returns a config value based on its key
      *  
      * @param string $key The identifier of the config value
      *
      * @return mixed
+     *
+     * @throws InvalidArgumentException if $key is not a string
+     * @throws Jm_Configuration_KeyNotFoundException if $key was not found
      */
     public function get($key) {
+        Jm_Util_Checktype::check('string', $key);
         if(!isset($this->values[$key])) {
-            throw new Exception(sprintf(
+            throw new Jm_Configuration_KeyNotFoundException(sprintf(
                 'Config value \'' . $key . '\' was not found'
             ));
         } else {
@@ -160,10 +167,30 @@ abstract class Jm_Configuration
      * @return array
      */
     public function getAll() {
-        if(!is_array($this->values)) {
-            $this->values = array();
-        }
         return $this->values; 
+    }
+
+
+    /**
+     * Removes a values from the configuration
+     *
+     * @param string $key
+     *
+     * @return Jm_Configuration
+     *
+     * @throws InvalidArgumentException if $key is not a string
+     * @throws Jm_Configuration_KeyNotFoundException if $key does not exist
+     */
+    public function remove($key) {
+        Jm_Util_Checktype::check('string', $key);
+        if(!isset($this->values[$key])) {
+            throw new Jm_Configuration_KeyNotFoundException(sprintf(
+                'Config value \'' . $key . '\' was not found'
+            ));
+        } else {
+            unset($this->values[$key]);
+            return $this;
+        }       
     }
 
 
@@ -174,12 +201,16 @@ abstract class Jm_Configuration
      *
      * @throws Jm_Configuration_Exception if the configuration is not valid 
      */
-    public function validate() {
+    public function isValid() {
         // first check if the validaton is 'enabled'
         if(!empty($this->validatorClass)) {
-            $this->validator = new $this->validator($this);			
+            $this->validator = new $this->validatorClass($this);			
             try{
-                $this->validator->validate($this);
+                if(!$this->validator->validate($this)) {
+                    throw new Jm_Configuration_Exception(
+                        'Configuration not valid!'/* @todo extend this */
+                    );		
+                }
             } catch ( Exception $e) {
                 // pack the exception info into a 
                 // configuration exception and rethrow it
@@ -208,62 +239,42 @@ abstract class Jm_Configuration
     }
 
 
-    /**	
-     *	Returns the sha1sum for the configuration.
-     *	Can be useful in factory/singleton methods
-     *	where eg. only one object per configration should
-     *	be created ...
-     *
-     *	@return string
-     */
-    public function sha1sum() {
-        if($this->updated || empty($this->sha1sum)) {
-            $str = '';
-            foreach($this->values as $key => $value) {
-                $str .= $key.$value;
-            }
-            $this->sha1sum = sha1($str);
-        }
-        return $this->sha1sum;
-    }
-
-
     /**
-     *  Merges the other configuration from
-     *  right(default) or left 
+     * Merges the other configuration from right(default) or left 
      *
-     *  @param Jm_Configuration|array $configuration Another Jm_Configuration
-     *  object or an array
-     *  @param boolean                $mergeright    If passing FALSE the 
-     *  current values will not being overwritten. Defaults to TRUE
+     * @param Jm_Configuration|array $configuration Another Jm_Configuration
+     * object or an array
+     * @param boolean                $mergeright    If passing FALSE the 
+     * current values will not being overwritten. Defaults to TRUE
      *
-     *  @return Jm_Configuration
+     * @return Jm_Configuration
      *
-     *  @throws InvalidArgumentException 
+     * @throws InvalidArgumentException if $configuration is not an array 
+     * or and instance of Jm_Configuration
      */
     public function merge (
         $configuration,
         $mergeright = TRUE
     ) {
-        if(is_array($configuration)) {
-            $configuration = new Jm_Configuration_Array($configuration);
-        }
 
-        if(!($configration instanceof Jm_Configuration)) {
-            throw new InvalidArgumentException ( sprintf (
-                '$configuration expected to be Jm_Configuration or array. '
-              . '%s found', is_object($configration) 
-                ? get_class($configuration) : gettype($configuration)
-            ));
+        Jm_Util_Checktype::check(
+            array('array', 'Jm_Configuration'),
+            $configuration
+        );
+
+        if(is_array($configuration)) {
+            $toBeMerged = $configuration;        
+        } else {
+            $toBeMerged = $configuration->getAll();
         }
 
         if($mergeright === TRUE) {
             $this->values = array_merge (
-                $this->values, $configuration->values()
+                $this->values, $toBeMerged
             );
         } else {
             $this->values = array_merge (
-                $configuration->values(), $this->values()
+                $toBeMerged, $this->getAll()
             );  
         }
         return $this;

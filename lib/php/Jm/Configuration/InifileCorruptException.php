@@ -43,42 +43,13 @@
  * @license   BSD-3 http://www.opensource.org/licenses/BSD-3-Clause
  * @version   GIT: $$GITVERSION$$
  * @link      http://www.metashock.de/
- * @since     0.1.0
+ * @since     0.1.2
  */
 /**
- * PHPUnit test for Jm_Configuration_Array
+ *
+ *  @package Jm_Configuration
  */
-class Jm_Configuration_ArrayTest extends PHPUnit_Framework_TestCase
+class Jm_Configuration_InifileCorruptException extends RuntimeException 
 {
-
-    /**
-     *
-     */
-    public function testConstruct() {
-
-        // we test with an empty array first
-        $conf = new Jm_Configuration_Array();
-        $this->assertEmpty($conf->getAll());
-
-        // now we test we a predefined array
-        $conf = new Jm_Configuration_Array(array(
-            'a' => 1,
-            'b' => 'test'
-        ));
-
-        $this->assertEquals($conf->get('a'), 1);
-        $this->assertEquals($conf->get('b'), 'test');
-
-        $this->assertEquals($conf->getAll(), array('a' => 1, 'b' => 'test'));
-
-    }
-
-
-    /**
-     * @expectedException PHPUnit_Framework_Error
-     */
-    public function testConstructorException() {
-        $conf = new Jm_Configuration_Array('');
-    }
-
 }
+

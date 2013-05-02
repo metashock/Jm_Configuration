@@ -83,9 +83,8 @@ class Jm_Configuration_Inifile extends Jm_Configuration
      *
      * @return Jm_Configuration_Inifile
      *
-     * @throws Exception                If $path does not exists or is not 
-     *                                  readable or executable if it is a 
-     *                                  directory
+     * @throws Jm_Filesystem_FileNotFoundException if $path does not exists
+     * @throws Jm_Filesystem_FileNotReadableException if $path isn't readable
      * @throws InvalidArgumentException If any of the params' types mismatches
      */ 
     public function __construct(
@@ -93,7 +92,6 @@ class Jm_Configuration_Inifile extends Jm_Configuration
         $processSections = FALSE,
         $validatorClass = ''
     ) {
-        Jm_Util_Checktype::check('string', $path);
         parent::__construct($validatorClass);
         // set instance vars
         $this->setProcessSections($processSections);
@@ -114,19 +112,30 @@ class Jm_Configuration_Inifile extends Jm_Configuration
      *
      * @return Jm_Configuration_Inifile
      *
-     * @throws Exception if $path isn't readable
+     * @throws Jm_Filesystem_FileNotFoundException if $path does not exists
+     * @throws Jm_Filesystem_FileNotReadableException if $path isn't readable
      */
     protected function loadFile($path, $merge = TRUE) {
+        if(!file_exists($path)) {
+            throw new Jm_Filesystem_FileNotFoundException(
+                'Cannot read from \'' . $path . '\''
+            );
+        }
         if(!is_readable($path)) {
-            throw new Exception('Cannot read from \'' . $path . '\'');
+            throw new Jm_Filesystem_FileNotReadableException(
+                'Cannot read from \'' . $path . '\''
+            );
+        }
+        $values = @parse_ini_file($path);
+        if($values === FALSE) {
+            throw new Jm_Configuration_InifileCorruptException (
+                'Failed to parse .ini file: \'' . $path . '\''
+            );
         }
         $this->values = array_merge_recursive(
             $this->values,
-            parse_ini_file($path)
+            $values
         );
-        // validate
-        $this->validate();
-
         return $this;
     }
 
@@ -142,13 +151,14 @@ class Jm_Configuration_Inifile extends Jm_Configuration
      *
      * @return Jm_Configuration_Inifile
      *
-     * @throws Exception if $path is a filename and the file isn't readable
+     * @throws InvalidArgumentException if $path is not a string
+     * @throws Jm_Filesystem_FileNotReadableException 
+     *         if $path is a filename and the file isn't readable
+     * @throws Jm_Filesystem_DirectoryNotBrowsableException 
+     *         if $path is a directory and it is not browsable
      */
     public function load($path) {
-        if(!file_exists($path)) {
-            throw new Exception('$path: ' . $path . ' does not exists');
-        }
-       
+        Jm_Util_Checktype::check('string', $path);
         if(is_dir($path)) {
             $this->loadDirectory($path);
         } else {
@@ -161,7 +171,7 @@ class Jm_Configuration_Inifile extends Jm_Configuration
 
     /**
      * Loads configuration files from a whole directory. Files will be parsed 
-     * in that order in which the filesystem returns them.
+     * in alphabetical order
      *
      * @param string  $path      Path to a directory
      * @param string  $pattern   Regex pattern for files that should be parsed
@@ -176,34 +186,35 @@ class Jm_Configuration_Inifile extends Jm_Configuration
         $pattern = '/.*\.ini$/',
         $recursive = TRUE
     ) {
-        $this->values = array();
-        $paths = array();
-        $directoryIterator = new RecursiveDirectoryIterator($path);
-        $recursiveIterator = new RecursiveIteratorIterator($directoryIterator);
-
-        $pattern = '/^.+\.ini$/i';
-        $regexIterator = new RegexIterator($recursiveIterator, $pattern);
-
-
-        foreach($dir->ls('/^.+\.ini$/i', TRUE) as $path) {
-            if(is_file($path) && is_readable($path)) {      
-                $vals = parse_ini_file (
-                    $path, 
-                    $this->processSections
-                );
-                // store the value in filenames section 
-                // so it will be always accessible
-                $paths[$path] = $vals;
-                    
-                // merge the values into the values array
-                if(is_array($vals)){
-                    $this->values = array_merge_recursive(
-                        $this->values, 
-                        $vals
-                    );
-                }               
+        #@TODO handle symlinks. Currently they are not supported
+        $stack = array($path);
+        do {
+            $files = array();
+            $current = array_pop($stack);
+            foreach(scandir($current, 1) as $file) {
+                // skip . | .. | .hidden
+                if(strpos($file, '.') === 0) {
+                    continue;
+                }
+                $fullpath = $current . '/' . $file;
+                if(!is_dir($fullpath)) {
+                    if(strpos($fullpath, '.ini') === strlen($fullpath) - 4) { 
+                        $files []= $fullpath;
+                    }
+                    continue; 
+                }
+                // skip symlinks or unbrowsable folders
+                if(!is_executable($fullpath) || is_link($fullpath)) {
+                    continue;
+                }
+                $stack []= $fullpath;
             }
-        }       
+
+            // traverse files in sorted order
+            foreach(array_reverse($files) as $file) {
+                $this->merge(new Jm_Configuration_Inifile($file));
+            }
+        } while (!empty($stack));
     }
 
 
