@@ -47,7 +47,9 @@
     </dir>
   </dir>
   <dir name="tests">
+    <file name="bootstrap.php" role="test" />
     <dir name="Jm">
+      <file name="ConfigurationTest.php" role="test" />
       <dir name="Configuration">
         <file name="ArrayTest.php" role="test" />
         <file name="InifileTest.php" role="test" />
