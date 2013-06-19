@@ -62,12 +62,14 @@ class Jm_ConfigurationTest extends PHPUnit_Framework_TestCase
    
     /**
      */ 
-    public function testGetSet() {
+    public function testGetSetHas() {
         $stub = $this->getMockBuilder('Jm_Configuration')
             ->setMethods(NULL)
             ->getMock();
 
+        $this->assertFalse($stub->has('test'));
         $stub->set('test', 1);
+        $this->assertTrue($stub->has('test'));
         $this->assertEquals(1, $stub->get('test'));
         $stub->set('foo', 'bar');
         $this->assertEquals('bar', $stub->get('foo'));

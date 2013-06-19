@@ -172,6 +172,24 @@ abstract class Jm_Configuration
 
 
     /**
+     * Returns true if a config value exists and
+     * otherwise false
+     *
+     * @param string $key
+     *
+     * @return boolean
+     *
+     * @throws InvalidArgumentException if $key is not a string
+     *
+     * @since 0.1.3
+     */
+    public function has($key) {
+        Jm_Util_Checktype::check('string', $key);
+        return array_key_exists($key, $this->values);
+    }
+
+
+    /**
      * Removes a values from the configuration
      *
      * @param string $key
