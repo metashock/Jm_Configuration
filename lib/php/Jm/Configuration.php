@@ -53,11 +53,12 @@
  * @author    Thorsten Heymann <thorsten@metashock.de>
  * @copyright 2013 Thorsten Heymann <thorsten@metashock.de>
  * @license   BSD-3 http://www.opensource.org/licenses/BSD-3-Clause
- * @version   GIT: $$GITVERSION$$
+ * @version   Release: 0.1.3
  * @link      http://www.metashock.de/
  * @since     0.1.0
  */	
 abstract class Jm_Configuration
+implements ArrayAccess, Iterator
 {
 
     /**
@@ -95,6 +96,13 @@ abstract class Jm_Configuration
     protected $updated = FALSE;
 
 
+    /**
+     * Used for the Iterator interface implementation
+     *
+     * @var integer
+     */
+    protected $position;
+
 
     /**
      * Constructor
@@ -130,7 +138,6 @@ abstract class Jm_Configuration
      * @throws InvalidArgumentException if $key is not a string
      */
     public function set($key, $value) {
-        Jm_Util_Checktype::check('string', $key);
         $this->values[$key] = $value;
         $this->updated = TRUE;
         return $this;
@@ -140,7 +147,7 @@ abstract class Jm_Configuration
     /**
      * Returns a config value based on its key
      *  
-     * @param string $key The identifier of the config value
+     * @param mixed $key The identifier of the config value
      *
      * @return mixed
      *
@@ -148,13 +155,19 @@ abstract class Jm_Configuration
      * @throws Jm_Configuration_KeyNotFoundException if $key was not found
      */
     public function get($key) {
-        Jm_Util_Checktype::check('string', $key);
         if(!isset($this->values[$key])) {
             throw new Jm_Configuration_KeyNotFoundException(sprintf(
                 'Config value \'' . $key . '\' was not found'
             ));
-        } else {
-            return $this->values[$key];
+        } else { 
+            $item = $this->values[$key];
+            if(is_array($item)) {
+                $item = new Jm_Configuration_Array($item);
+            } else if(is_object($item)) {
+                throw new Exception('not implemented yet');
+                $item = new Jm_Configuration_Object($item);
+            }
+            return $item;
         }
     }
 
@@ -184,7 +197,6 @@ abstract class Jm_Configuration
      * @since 0.1.3
      */
     public function has($key) {
-        Jm_Util_Checktype::check('string', $key);
         return array_key_exists($key, $this->values);
     }
 
@@ -296,6 +308,83 @@ abstract class Jm_Configuration
             );  
         }
         return $this;
+    }
+
+
+    public function __get($property) {
+        return $this->get($property);
+    }
+
+
+    public function offsetExists($offset) {
+        return $this->has($offset);
+    }
+
+
+    public function offsetGet($offset) {
+        if(is_int($offset) 
+            && $offset === 0
+            && !$this->has(0)
+        ) {
+            return $this;
+        }
+        return $this->get($offset);
+    }
+
+    public function offsetSet($offset, $value) {
+        $this->set($offset, $value);
+    }
+
+    public function offsetUnset($offset) {
+        unset($this->values[$offset]);
+    }
+
+    
+    /**
+     * @return integer
+     */
+    public function count() {
+        if(!isset($this->values[0])) {
+            return FALSE;
+        } else {
+            return count($this->values);
+        }
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function current() {
+        return $this[$this->position];
+    }
+
+    /**
+     * @return integer
+     */
+    public function key() {
+        return $this->position;
+    }
+
+    /**
+     * @return void
+     */
+    public function next() {
+       $this->position++;
+    }
+
+    /**
+     * @return void
+     */
+    public function rewind() {
+        $this->position = 0;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function valid() {
+        return $this->offsetExists($this->position);
     }
 }
 

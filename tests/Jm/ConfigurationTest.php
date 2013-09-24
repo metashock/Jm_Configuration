@@ -191,6 +191,7 @@ class Jm_ConfigurationTest extends PHPUnit_Framework_TestCase
     [validatorClass:protected] => 
     [validator:protected] => 
     [updated:protected] => 1
+    [position:protected] => 
 )
 ';
         $str = strval($conf);
