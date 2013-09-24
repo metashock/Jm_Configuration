@@ -1,0 +1,16 @@
+nbproject
+cache.properties
+build/coverage
+build/api
+build/logs
+build/phpdoc
+build/phpdox
+build/code-browser
+build/pdepend
+build/*.tgz
+build/pear
+README.md~
+phish_info
+.vagrant
+
+

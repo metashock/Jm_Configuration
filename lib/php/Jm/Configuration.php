@@ -53,7 +53,7 @@
  * @author    Thorsten Heymann <thorsten@metashock.de>
  * @copyright 2013 Thorsten Heymann <thorsten@metashock.de>
  * @license   BSD-3 http://www.opensource.org/licenses/BSD-3-Clause
- * @version   Release: 0.1.3
+ * @version   GIT: $$GITVERSION$$
  * @link      http://www.metashock.de/
  * @since     0.1.0
  */	
